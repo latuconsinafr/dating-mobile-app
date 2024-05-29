@@ -119,6 +119,13 @@ export const DEFAULT_UNPROCESSABLE_ENTITY_MESSAGE = 'Unprocessable entity';
  */
 export const DEFAULT_INTERNAL_SERVER_ERROR_MESSAGE = 'Internal server error';
 
+// * Other messages section
+/**
+ * Defines default message for the invalid uuid exception.
+ */
+export const DEFAULT_INVALID_UUID_MESSAGE =
+  'The given value is not a valid UUID';
+
 // * Meta data key section
 /**
  * Defines the not to be transformed metadata key.

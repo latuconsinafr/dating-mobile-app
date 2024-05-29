@@ -23,7 +23,7 @@ export class ForbiddenException extends HttpException {
    * By default, the JSON response body contains three properties:
    * - `message`: the string {@link DEFAULT_FORBIDDEN_MESSAGE} by default;
    * override this by supplying a string in the errorResponse parameter.
-   * - `error`: the enum {@link ErrorCode.ErrorForbidden} by default;
+   * - `error`: the enum {@link ErrorCode.ERROR_FORBIDDEN} by default;
    * override this by supplying any value of `ErrorCode` in the errorResponse parameter.
    * - `help`: the string {@link DEFAULT_HELP_MESSAGE} by default;
    * override this by supplying a string in the errorResponse parameter.

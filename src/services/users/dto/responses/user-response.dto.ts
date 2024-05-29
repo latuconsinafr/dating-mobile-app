@@ -6,6 +6,7 @@ import {
 import { AuditTrailResponse } from '../../../../common/dto/responses/audit-trail-response.dto';
 import { userData } from '../../../../database/data/user.data';
 import { UserIdParam } from '../params/user-id-param.dto';
+import { UserRole } from '../../enums/user-role.enum';
 
 /**
  * Defines the DTO that carries data representing a user.
@@ -36,10 +37,11 @@ export class UserResponse extends IntersectionType(
   email?: string;
 
   @ApiProperty({
+    enum: UserRole,
     description: 'The role of the user',
     example: userData[1].role,
   })
-  role: string;
+  role: UserRole;
 
   @ApiPropertyOptional({
     description: 'The last signed in timestamp of the user, if any',

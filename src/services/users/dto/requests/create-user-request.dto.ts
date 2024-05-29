@@ -63,7 +63,7 @@ export class CreateUserRequest {
   @IsEnum(UserRole)
   @ApiProperty({
     enum: UserRole,
-    description: 'The role id of the user',
+    description: 'The role of the user',
     example: userData[0].role,
   })
   role: UserRole;

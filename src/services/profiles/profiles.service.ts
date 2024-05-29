@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
-import { Repository } from 'typeorm';
+import { Between, In, Not, Repository } from 'typeorm';
 import { Profile } from './entities/profile.entity';
+import { Swipe } from '../swipes/entities/swipe.entity';
+import { PROFILE_STACK_COUNT } from './constants';
 
 /**
  * Defines the profiles service that responsible for data storage and retrieval for profile related entity.
@@ -14,11 +16,14 @@ export class ProfilesService {
    *
    * @param logger The pino logger
    * @param profilesRepository The repository of profile entity
+   * @param swipesRepository The repository of swipe entity
    */
   constructor(
     private readonly logger: PinoLogger,
     @InjectRepository(Profile)
     private readonly profilesRepository: Repository<Profile>,
+    @InjectRepository(Swipe)
+    private readonly swipesRepository: Repository<Swipe>,
   ) {
     this.logger.setContext(ProfilesService.name);
   }
@@ -51,6 +56,51 @@ export class ProfilesService {
     this.logger.info(`Try to call ${ProfilesService.prototype.findAll.name}`);
 
     return await this.profilesRepository.find();
+  }
+
+  /**
+   * Gets all profiles stack for a specified user/profile.
+   *
+   * @param id The specified user/profile id to find stack from.
+   *
+   * @returns The profiles array.
+   */
+  async findStack(id: string): Promise<Profile[]> {
+    this.logger.info(`Try to call ${ProfilesService.prototype.findStack.name}`);
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const swipeCount = await this.swipesRepository.count({
+      where: {
+        user: { id },
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
+
+    const remainingProfiles = PROFILE_STACK_COUNT - swipeCount;
+
+    if (remainingProfiles <= 0) {
+      return [];
+    }
+
+    const swipedProfiles = await this.swipesRepository.find({
+      select: ['profileId'],
+      where: {
+        user: { id },
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
+
+    const swipedProfileIds = swipedProfiles.map((swipe) => swipe.profileId);
+
+    return this.profilesRepository.find({
+      where: swipedProfileIds.length ? { id: Not(In(swipedProfileIds)) } : {},
+      take: remainingProfiles,
+    });
   }
 
   /**

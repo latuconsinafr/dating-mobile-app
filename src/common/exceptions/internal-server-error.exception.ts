@@ -25,7 +25,7 @@ export class InternalServerErrorException extends HttpException {
    * By default, the JSON response body contains three properties:
    * - `message`: the string {@link DEFAULT_INTERNAL_SERVER_ERROR_MESSAGE} by default;
    * override this by supplying a string in the errorResponse parameter.
-   * - `error`: the enum {@link ErrorCode.ErrorInternalServerError} by default;
+   * - `error`: the enum {@link ErrorCode.ERROR_INTERNAL_SERVER_ERROR} by default;
    * override this by supplying any value of `ErrorCode` in the errorResponse parameter.
    * - `help`: the string {@link DEFAULT_HELP_MESSAGE} by default;
    * override this by supplying a string in the errorResponse parameter.
