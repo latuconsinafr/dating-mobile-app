@@ -15,7 +15,7 @@ import { ApiSuccessResponseMetadataOptions } from '../api-success-response.decor
 export const ApiOkSuccessResponse = <TModel extends Type<any>>(
   options: ApiSuccessResponseMetadataOptions<TModel>,
 ): MethodDecorator & ClassDecorator & PropertyDecorator => {
-  const { model, isArray, isPaginated, ...apiResponseOptions } = options;
+  const { model, isArray, ...apiResponseOptions } = options;
 
   const extraModels: any[] = [OkSuccessResponse, ...(model ? [model] : [])];
 
@@ -31,7 +31,7 @@ export const ApiOkSuccessResponse = <TModel extends Type<any>>(
             properties: {
               // * Adjusting data type of model['data']
               ...(model
-                ? isArray || isPaginated
+                ? isArray
                   ? {
                       data: {
                         type: 'array',

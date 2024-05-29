@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from './config/config.module';
 import { AppController } from './app.controller';
+import { ServicesModule } from './services/services.module';
 
 /**
  * Defines the application module.
@@ -14,7 +15,7 @@ import { AppController } from './app.controller';
  * - {@link AppController} App controller
  */
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, ServicesModule],
   controllers: [AppController],
   providers: [],
 })

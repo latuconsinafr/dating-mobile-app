@@ -6,7 +6,6 @@ import { AppConfigOptions, Environment } from './config/app/app.config';
 import { Logger } from 'nestjs-pino';
 import {
   ClassSerializerInterceptor,
-  UnprocessableEntityException,
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
@@ -23,6 +22,8 @@ import {
 } from './common/constants';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ErrorCode } from './common/enums/http/error-code.enum';
+import { UnprocessableEntityException } from './common/exceptions/unprocessable-entity.exception';
 
 /**
  * Defines the application bootstrapping function
@@ -95,7 +96,10 @@ async function bootstrap() {
       // forbidUnknownValues: true,
 
       exceptionFactory: (errors: ValidationError[]) => {
-        return new UnprocessableEntityException(errors);
+        return new UnprocessableEntityException(
+          { error: ErrorCode.ERROR_INPUT_VALIDATION_FAILED },
+          errors,
+        );
       },
     }),
   );

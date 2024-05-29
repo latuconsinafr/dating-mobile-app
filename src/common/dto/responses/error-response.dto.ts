@@ -2,6 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 import { DEFAULT_HELP_MESSAGE } from '../../constants';
 import { ValidationErrors } from '../../types/validation-errors.interface';
+import { ErrorCode } from '../../enums/http/error-code.enum';
 
 /**
  * Defines the DTO that carries the error response.
@@ -13,6 +14,7 @@ import { ValidationErrors } from '../../types/validation-errors.interface';
  * - `path`: The requested url/path
  * - `success`: The request status, which is always `true`
  * - `message`: The response message, either an error message or a validation error message
+ * - `error`: The application error code
  * - `help`: The help message related to error
  */
 export class ErrorResponse {
@@ -45,6 +47,12 @@ export class ErrorResponse {
     example: 'Error',
   })
   message: string | ValidationErrors[];
+
+  @ApiProperty({
+    description: 'The application error code',
+    example: ErrorCode.ERROR_INTERNAL_SERVER_ERROR,
+  })
+  error: ErrorCode;
 
   @ApiProperty({
     description: 'The help message related to error',

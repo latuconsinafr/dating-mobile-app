@@ -1,5 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
+import { ErrorCode } from '../../../enums/http/error-code.enum';
 import { ErrorResponse } from '../error-response.dto';
 
 /**
@@ -10,6 +11,7 @@ import { ErrorResponse } from '../error-response.dto';
  *
  * The NotFoundErrorResponse contains error attribute:
  * - `statusCode`: The {@link HttpStatus} code
+ * - `error`: The application error code
  */
 export class NotFoundErrorResponse extends ErrorResponse {
   @ApiProperty({
@@ -17,4 +19,10 @@ export class NotFoundErrorResponse extends ErrorResponse {
     example: HttpStatus.NOT_FOUND,
   })
   statusCode: HttpStatus;
+
+  @ApiProperty({
+    description: 'The application error code',
+    example: ErrorCode.ERROR_NOT_FOUND,
+  })
+  error: ErrorCode;
 }

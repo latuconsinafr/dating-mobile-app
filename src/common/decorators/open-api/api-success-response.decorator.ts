@@ -41,7 +41,6 @@ export interface ApiSuccessResponseMetadata<TModel extends Type<any>> {
 export interface ApiSuccessResponseMetadataOptions<TModel extends Type<any>> {
   model?: TModel;
   isArray?: boolean;
-  isPaginated?: boolean;
   options?: ApiResponseOptions;
 }
 
