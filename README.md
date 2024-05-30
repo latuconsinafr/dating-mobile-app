@@ -29,18 +29,17 @@ This is a sample application of dating mobile app, similar to Tinder/Bumble but 
     |    |    ├── subscriptions      # Subscriptions service
     |    |    ├── swipes             # Swipes service
     |    |    ├── users              # Users service
-    |    |    └── services.module.ts
+    |    |    └── services.module.ts # The main module for the application services
     |    ├── app.controller.ts       # The main entry point for the application
     |    ├── app.module.ts           # The main module for the application
     |    └── main.ts                 # The main function to bootstrap the whole application
     ├── test                         # Test files, for the e2e test
     ├── ...       
-    ├── .env                          # To store configuration settings, environment variables, and sensitive information securely 
-    ├── wait-for-it.sh                # Script that will wait on the availability of a host and TCP port (especially when running command in docker environment) 
+    ├── .env                         # To store configuration settings, environment variables, and sensitive information securely 
+    ├── wait-for-it.sh               # Script that will wait on the availability of a host and TCP port (especially when running command in docker environment) 
     └── ...
 
-> Use short lowercase names at least for the top-level files and folders except
-> `LICENSE`, `README.md`
+> Please follow the current folder & files structure 
 
 
 ## Installation and running the app
