@@ -12,7 +12,7 @@ import { Swipe } from '../../entities/swipe.entity';
  * Defines the DTO that carries data to create a swipe.
  *
  * @usageNotes
- * The CreateProfileRequest contains swipe attribute:
+ * The CreateSwipeRequest contains swipe attribute:
  * - `type`: The type of the swipe
  * - `userId`: The user id who swipe
  * - `profileId`: The profile id who's swiped

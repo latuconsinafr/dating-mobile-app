@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
-import { Between, In, Not, Repository } from 'typeorm';
+import { Between, In, MoreThan, Not, Repository } from 'typeorm';
 import { Profile } from './entities/profile.entity';
 import { Swipe } from '../swipes/entities/swipe.entity';
 import { PROFILE_STACK_COUNT } from './constants';
+import { Subscription } from '../subscriptions/entities/subscription.entity';
+import { SubscriptionType } from '../subscriptions/enums/subscription-type.enum';
 
 /**
  * Defines the profiles service that responsible for data storage and retrieval for profile related entity.
@@ -24,6 +26,8 @@ export class ProfilesService {
     private readonly profilesRepository: Repository<Profile>,
     @InjectRepository(Swipe)
     private readonly swipesRepository: Repository<Swipe>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionsRepository: Repository<Subscription>,
   ) {
     this.logger.setContext(ProfilesService.name);
   }
@@ -68,24 +72,13 @@ export class ProfilesService {
   async findStack(id: string): Promise<Profile[]> {
     this.logger.info(`Try to call ${ProfilesService.prototype.findStack.name}`);
 
+    const now = new Date();
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
-
-    const swipeCount = await this.swipesRepository.count({
-      where: {
-        user: { id },
-        createdAt: Between(todayStart, todayEnd),
-      },
-    });
-
-    const remainingProfiles = PROFILE_STACK_COUNT - swipeCount;
-
-    if (remainingProfiles <= 0) {
-      return [];
-    }
 
     const swipedProfiles = await this.swipesRepository.find({
       select: ['profileId'],
@@ -95,12 +88,38 @@ export class ProfilesService {
       },
     });
 
-    const swipedProfileIds = swipedProfiles.map((swipe) => swipe.profileId);
+    const swipedProfileIds = swipedProfiles.map(
+      (swipedProfile) => swipedProfile.profileId,
+    );
+    const excludeProfileIds = [...swipedProfileIds, id];
 
-    return this.profilesRepository.find({
-      where: swipedProfileIds.length ? { id: Not(In(swipedProfileIds)) } : {},
-      take: remainingProfiles,
+    const unlimitedSubscription = await this.subscriptionsRepository.findOne({
+      where: {
+        user: { id },
+        endDate: MoreThan(now),
+        type: SubscriptionType.UnlimitedSwipe,
+      },
+      order: { endDate: 'DESC' },
     });
+
+    const remainingProfiles = Math.max(
+      0,
+      unlimitedSubscription
+        ? Number.MAX_SAFE_INTEGER
+        : PROFILE_STACK_COUNT - (swipedProfileIds.length - 1),
+    );
+
+    const profiles = await this.profilesRepository.find({
+      where: swipedProfileIds.length ? { id: Not(In(excludeProfileIds)) } : {},
+      take: remainingProfiles,
+      relations: {
+        user: {
+          subscriptions: true,
+        },
+      },
+    });
+
+    return profiles;
   }
 
   /**

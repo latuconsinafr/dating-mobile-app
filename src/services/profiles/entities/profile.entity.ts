@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { AuditTrailEntity } from '../../../common/entities/audit-trail.entity';
 import { User } from '../../users/entities/user.entity';
+import { SubscriptionType } from '../../subscriptions/enums/subscription-type.enum';
 
 /**
  * Defines the profile entity.
@@ -12,6 +13,7 @@ import { User } from '../../users/entities/user.entity';
  * - `age`: The age of the profile
  * - `location`: The location of the profile
  * - `aboutMe`: The about me of the profile, if any
+ * - `isCurrentlyVerified`: The flag indicates whether the profile has been verified or not
  * - `user`: The profile user
  */
 @Entity()
@@ -30,6 +32,17 @@ export class Profile extends AuditTrailEntity<Profile> {
 
   @Column('text', { nullable: true })
   aboutMe?: string;
+
+  isCurrentlyVerified?(): boolean {
+    const now = new Date();
+
+    return this.user.subscriptions.some(
+      (subscription) =>
+        subscription.type === SubscriptionType.VerifiedBadge &&
+        subscription.startDate <= now &&
+        subscription.endDate >= now,
+    );
+  }
 
   @OneToOne(
     /* istanbul ignore next */ () => User,

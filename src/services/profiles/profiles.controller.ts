@@ -89,9 +89,21 @@ export class ProfilesController {
     try {
       const profiles = await this.profilesService.findStack(id);
 
+      const filteredProfileAttributes: ProfileResponse[] = profiles.map(
+        (profile) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { user, ...profileWithoutUser } = profile;
+
+          return {
+            ...profileWithoutUser,
+            isVerified: profile.isCurrentlyVerified(),
+          };
+        },
+      );
+
       return new SuccessResponse({
         message: PROFILES_RETRIEVED_MESSAGE,
-        data: profiles,
+        data: filteredProfileAttributes,
       });
     } catch (error) {
       this.logger.error(`Error occurred: ${error}`);

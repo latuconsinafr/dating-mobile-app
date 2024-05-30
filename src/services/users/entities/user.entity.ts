@@ -1,8 +1,15 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { AuditTrailEntity } from '../../../common/entities/audit-trail.entity';
 import { Exclude } from 'class-transformer';
 import { UserRole } from '../enums/user-role.enum';
 import { Profile } from '../../profiles/entities/profile.entity';
+import { Subscription } from '../../subscriptions/entities/subscription.entity';
 
 /**
  * Defines the user entity.
@@ -16,6 +23,7 @@ import { Profile } from '../../profiles/entities/profile.entity';
  * - `role`: The role of the user
  * - `lastSignedInAt`: The last signed in timestamp of the user, if any
  * - `profile`: The profile of the user
+ * - `subscriptions`: The subscriptions of the user
  */
 @Entity()
 export class User extends AuditTrailEntity<User> {
@@ -46,4 +54,12 @@ export class User extends AuditTrailEntity<User> {
     },
   )
   profile: Profile;
+
+  @OneToMany(
+    /* istanbul ignore next */ () => Subscription,
+    /* istanbul ignore next */ (subscription: Subscription) =>
+      subscription.user,
+    { cascade: true },
+  )
+  subscriptions: Subscription[];
 }

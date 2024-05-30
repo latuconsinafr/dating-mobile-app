@@ -1,5 +1,5 @@
 /**
- * Defines enum for application swipe type.
+ * Defines enum for swipe type.
  */
 export enum SwipeType {
   /**

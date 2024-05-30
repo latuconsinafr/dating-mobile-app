@@ -18,6 +18,7 @@ import { profileData } from '../../../../database/data/profile.data';
  * - `age`: The age of the profile
  * - `location`: The location of the profile
  * - `aboutMe`: The about me of the profile, if any
+ * - `isVerified`: The flag indicates whether the profile has been verified or not
  */
 export class ProfileResponse extends IntersectionType(
   ProfileIdParam,
@@ -46,4 +47,11 @@ export class ProfileResponse extends IntersectionType(
     example: profileData[1].aboutMe,
   })
   aboutMe?: string;
+
+  @ApiProperty({
+    description:
+      'The flag indicates whether the profile has been verified or not',
+    example: false,
+  })
+  isVerified? = false;
 }

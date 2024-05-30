@@ -5,7 +5,7 @@ import { USER_ID_DESCRIPTION } from '../../../users/constants';
 import { IsUserExist } from '../../../users/validators/is-user-exist.validator';
 
 /**
- * Defines the DTO that carries the user identifier request parameter.
+ * Defines the DTO that carries the profile identifier request parameter.
  */
 export class ProfileIdParam {
   @IsNotEmpty()
