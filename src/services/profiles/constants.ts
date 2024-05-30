@@ -58,4 +58,4 @@ export const PROFILE_ALREADY_EXISTS_DEFAULT_MESSAGE = (
 ) => `profile with ${property} ${value} already exists`;
 
 // * Default other section
-export const PROFILE_STACK_COUNT = 2;
+export const PROFILE_STACK_COUNT = 10;

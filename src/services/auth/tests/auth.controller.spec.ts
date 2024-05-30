@@ -12,19 +12,15 @@ import { UsersService } from '../../users/users.service';
 import { AuthController } from '../auth.controller';
 import { AuthService } from '../auth.service';
 import { AuthResponse } from '../types/auth-response.interface';
-import RequestWithAuthUser from '../types/request-with-auth-user.interface';
 import { userData } from '../../../database/data/user.data';
 import {
   USER_AUTHENTICATED_MESSAGE,
   USER_SIGNED_IN_MESSAGE,
+  USER_SIGNED_UP_MESSAGE,
 } from '../constants';
-import { ClinicsService } from '../../clinics/clinics.service';
-import { Clinic } from '../../clinics/entities/clinic.entity';
 import { InternalServerErrorException } from '../../../common/exceptions/internal-server-error.exception';
-import { ClinicApproval } from '../../clinics/entities/clinic-approval.entity';
-import { SubscriptionsService } from '../../subscriptions/subscriptions.service';
-import { Subscription } from '../../subscriptions/entities/subscription.entity';
-import { SubscriptionApproval } from '../../subscriptions/entities/subscription-approval.entity';
+import { RequestWithAuthUser } from '../types/request-with-auth-user.interface';
+import { SignUpRequest } from '../dto/requests/sign-up-request.dto';
 
 describe(AuthController.name, () => {
   let authController: AuthController;
@@ -43,21 +39,6 @@ describe(AuthController.name, () => {
         AuthService,
         UsersService,
         { provide: getRepositoryToken(User), useValue: mockedRepository },
-        ClinicsService,
-        { provide: getRepositoryToken(Clinic), useValue: mockedRepository },
-        {
-          provide: getRepositoryToken(ClinicApproval),
-          useValue: mockedRepository,
-        },
-        SubscriptionsService,
-        {
-          provide: getRepositoryToken(Subscription),
-          useValue: mockedRepository,
-        },
-        {
-          provide: getRepositoryToken(SubscriptionApproval),
-          useValue: mockedRepository,
-        },
         { provide: JwtService, useValue: mockedJwtService },
         {
           provide: ConfigService,
@@ -83,6 +64,7 @@ describe(AuthController.name, () => {
     jest.clearAllMocks();
   });
 
+  // * GET: /
   describe(`when ${AuthController.prototype.authenticate.name} is called`, () => {
     let request: RequestWithAuthUser;
     const data = userData[0];
@@ -101,6 +83,7 @@ describe(AuthController.name, () => {
     });
   });
 
+  // * POST: /sign-in
   describe(`when ${AuthController.prototype.signIn.name} is called`, () => {
     let request: RequestWithAuthUser;
     let authServiceSignInSpy: jest.SpyInstance<
@@ -144,6 +127,49 @@ describe(AuthController.name, () => {
               accessToken: jwtSecret,
               expiresIn: jwtExpiresIn,
             },
+          }),
+        );
+      });
+    });
+  });
+
+  // * POST: /sign-up
+  describe(`when ${AuthController.prototype.signUp.name} is called`, () => {
+    let userToSignUp: SignUpRequest;
+    let authServiceSignUpSpy: jest.SpyInstance<Promise<User>, [user: User]>;
+    const data = userData[0];
+
+    beforeEach(() => {
+      userToSignUp = {
+        ...data,
+      };
+      authServiceSignUpSpy = jest.spyOn(authService, 'signUp');
+      authServiceSignUpSpy.mockResolvedValue(data);
+    });
+
+    describe('and when error occurred', () => {
+      it(`should throw ${InternalServerErrorException.name}`, async () => {
+        jest.spyOn(authService, 'signUp').mockImplementationOnce(async () => {
+          throw new Error();
+        });
+        await expect(authController.signUp(userToSignUp)).rejects.toThrow(
+          InternalServerErrorException,
+        );
+      });
+    });
+
+    describe('and when no error occurred', () => {
+      it(`should call ${AuthService.name} ${AuthService.prototype.signIn.name} method`, async () => {
+        await authController.signUp(userToSignUp);
+
+        expect(authServiceSignUpSpy).toBeCalledTimes(1);
+      });
+
+      it('should return a message and data contains the created user', async () => {
+        expect(await authController.signUp(userToSignUp)).toStrictEqual(
+          new SuccessResponse({
+            message: USER_SIGNED_UP_MESSAGE,
+            data: data,
           }),
         );
       });

@@ -9,19 +9,12 @@ import { mockedRepository } from '../../../../common/utils/mocks/typeorm/reposit
 import { User } from '../../../users/entities/user.entity';
 import { UsersService } from '../../../users/users.service';
 import { AuthService } from '../../auth.service';
-import { CustomStrategy } from '../../strategies/local.strategy';
+import { LocalStrategy } from '../../strategies/local.strategy';
 import { userData } from '../../../../database/data/user.data';
-import { clinicData } from '../../../../database/data/clinic.data';
-import { ClinicsService } from '../../../clinics/clinics.service';
-import { Clinic } from '../../../clinics/entities/clinic.entity';
 import { UnprocessableEntityException } from '../../../../common/exceptions/unprocessable-entity.exception';
-import { ClinicApproval } from '../../../clinics/entities/clinic-approval.entity';
-import { SubscriptionsService } from '../../../subscriptions/subscriptions.service';
-import { Subscription } from '../../../subscriptions/entities/subscription.entity';
-import { SubscriptionApproval } from '../../../subscriptions/entities/subscription-approval.entity';
 
-describe(CustomStrategy.name, () => {
-  let customStrategy: CustomStrategy;
+describe(LocalStrategy.name, () => {
+  let localStrategy: LocalStrategy;
   let authService: AuthService;
   const jwtSecret = 'secret';
   const jwtExpiresIn = '24h';
@@ -29,7 +22,7 @@ describe(CustomStrategy.name, () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
-        CustomStrategy,
+        LocalStrategy,
         {
           provide: PinoLogger,
           useValue: mockedPinoLogger,
@@ -37,21 +30,6 @@ describe(CustomStrategy.name, () => {
         AuthService,
         UsersService,
         { provide: getRepositoryToken(User), useValue: mockedRepository },
-        ClinicsService,
-        { provide: getRepositoryToken(Clinic), useValue: mockedRepository },
-        {
-          provide: getRepositoryToken(ClinicApproval),
-          useValue: mockedRepository,
-        },
-        SubscriptionsService,
-        {
-          provide: getRepositoryToken(Subscription),
-          useValue: mockedRepository,
-        },
-        {
-          provide: getRepositoryToken(SubscriptionApproval),
-          useValue: mockedRepository,
-        },
         { provide: JwtService, useValue: mockedJwtService },
         {
           provide: ConfigService,
@@ -69,7 +47,7 @@ describe(CustomStrategy.name, () => {
       ],
     }).compile();
 
-    customStrategy = moduleRef.get<CustomStrategy>(CustomStrategy);
+    localStrategy = moduleRef.get<LocalStrategy>(LocalStrategy);
     authService = moduleRef.get<AuthService>(AuthService);
   });
 
@@ -77,27 +55,16 @@ describe(CustomStrategy.name, () => {
     jest.clearAllMocks();
   });
 
-  describe(`when ${CustomStrategy.prototype.validate.name} is called`, () => {
+  describe(`when ${LocalStrategy.prototype.validate.name} is called`, () => {
     const data = userData[0];
-    const clinic = clinicData[0];
-
-    const request = {
-      ...{
-        body: {
-          username: data.username,
-          password: data.password,
-          uniqueKey: clinic.uniqueKey,
-        },
-      },
-    };
 
     describe('and the user is not validated', () => {
       it(`should throw ${UnprocessableEntityException.name} exception`, async () => {
         jest.spyOn(authService, 'validateUser').mockResolvedValue(null);
 
-        await expect(customStrategy.validate(request as any)).rejects.toThrow(
-          UnprocessableEntityException,
-        );
+        await expect(
+          localStrategy.validate(data.username, data.password),
+        ).rejects.toThrow(UnprocessableEntityException);
       });
     });
 
@@ -105,9 +72,9 @@ describe(CustomStrategy.name, () => {
       it('should return the validated user', async () => {
         jest.spyOn(authService, 'validateUser').mockResolvedValue(data);
 
-        expect(await customStrategy.validate(request as any)).toStrictEqual(
-          data,
-        );
+        expect(
+          await localStrategy.validate(data.username, data.password),
+        ).toStrictEqual(data);
       });
     });
   });

@@ -36,11 +36,13 @@ export class Profile extends AuditTrailEntity<Profile> {
   isCurrentlyVerified?(): boolean {
     const now = new Date();
 
-    return this.user.subscriptions.some(
-      (subscription) =>
-        subscription.type === SubscriptionType.VerifiedBadge &&
-        subscription.startDate <= now &&
-        subscription.endDate >= now,
+    return (
+      this.user?.subscriptions?.some(
+        (subscription) =>
+          subscription.type === SubscriptionType.VerifiedBadge &&
+          subscription.startDate <= now &&
+          subscription.endDate >= now,
+      ) ?? false
     );
   }
 

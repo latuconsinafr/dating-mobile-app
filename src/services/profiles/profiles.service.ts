@@ -81,6 +81,15 @@ export class ProfilesService {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
+    const unlimitedSubscription = await this.subscriptionsRepository.findOne({
+      where: {
+        user: { id },
+        endDate: MoreThan(now),
+        type: SubscriptionType.UnlimitedSwipe,
+      },
+      order: { endDate: 'DESC' },
+    });
+
     const swipedProfiles = await this.swipesRepository.find({
       select: ['profileId'],
       where: {
@@ -93,15 +102,6 @@ export class ProfilesService {
       (swipedProfile) => swipedProfile.profileId,
     );
     const excludeProfileIds = [...swipedProfileIds, id];
-
-    const unlimitedSubscription = await this.subscriptionsRepository.findOne({
-      where: {
-        user: { id },
-        endDate: MoreThan(now),
-        type: SubscriptionType.UnlimitedSwipe,
-      },
-      order: { endDate: 'DESC' },
-    });
 
     const remainingProfiles = Math.max(
       0,

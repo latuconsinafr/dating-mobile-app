@@ -48,6 +48,18 @@ export class SwipesService {
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
+    const existingSwipe = await this.swipesRepository.findOneBy({
+      user: { id: swipe.userId },
+      profile: { id: swipe.profileId },
+      createdAt: Between(todayStart, todayEnd),
+    });
+
+    if (existingSwipe) {
+      throw new UnprocessableEntityException({
+        message: 'You have already swiped on this profile today.',
+      });
+    }
+
     const unlimitedSubscription = await this.subscriptionsRepository.findOne({
       where: {
         user: { id: swipe.userId },
@@ -58,7 +70,7 @@ export class SwipesService {
     });
 
     const swipeCount = unlimitedSubscription
-      ? 0
+      ? -1
       : await this.swipesRepository.count({
           where: {
             user: { id: swipe.userId },
@@ -69,20 +81,6 @@ export class SwipesService {
     if (swipeCount >= SWIPE_COUNT) {
       throw new UnprocessableEntityException({
         message: 'Daily swipe limit reached.',
-      });
-    }
-
-    const existingSwipe = await this.swipesRepository.findOne({
-      where: {
-        user: { id: swipe.userId },
-        profile: { id: swipe.profileId },
-        createdAt: Between(todayStart, todayEnd),
-      },
-    });
-
-    if (existingSwipe) {
-      throw new UnprocessableEntityException({
-        message: 'You have already swiped on this profile today.',
       });
     }
 

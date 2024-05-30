@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Post,
-  Req,
-  Body,
-  ConflictException,
-  UnprocessableEntityException,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Controller, Post, Req, Body, ConflictException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { PinoLogger } from 'nestjs-pino';
 import { APP_VERSION } from '../../common/constants';
@@ -24,6 +16,8 @@ import { SUBSCRIPTION_CREATED_MESSAGE } from './constants';
 import { CreateSubscriptionRequest } from './dto/requests/create-subscription-request.dto';
 import { SubscriptionResponse } from './dto/responses/subscription-response.dto';
 import { SubscriptionsService } from './subscriptions.service';
+import { InternalServerErrorException } from '../../common/exceptions/internal-server-error.exception';
+import { UnprocessableEntityException } from '../../common/exceptions/unprocessable-entity.exception';
 
 @Controller({
   path: 'subscriptions',
