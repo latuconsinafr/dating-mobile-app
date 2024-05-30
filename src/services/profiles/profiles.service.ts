@@ -19,6 +19,7 @@ export class ProfilesService {
    * @param logger The pino logger
    * @param profilesRepository The repository of profile entity
    * @param swipesRepository The repository of swipe entity
+   * @param subscriptionsRepository The repository of subscription entity
    */
   constructor(
     private readonly logger: PinoLogger,
@@ -106,7 +107,7 @@ export class ProfilesService {
       0,
       unlimitedSubscription
         ? Number.MAX_SAFE_INTEGER
-        : PROFILE_STACK_COUNT - (swipedProfileIds.length - 1),
+        : PROFILE_STACK_COUNT - swipedProfileIds.length,
     );
 
     const profiles = await this.profilesRepository.find({

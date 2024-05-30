@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PinoLogger } from 'nestjs-pino';
 import { Swipe } from './entities/swipe.entity';
-import { Between, Repository } from 'typeorm';
+import { Between, MoreThan, Repository } from 'typeorm';
 import { SWIPE_COUNT } from './constants';
 import { UnprocessableEntityException } from '../../common/exceptions/unprocessable-entity.exception';
+import { Subscription } from '../subscriptions/entities/subscription.entity';
+import { SubscriptionType } from '../subscriptions/enums/subscription-type.enum';
 
 /**
  * Defines the swipes service that responsible for data storage and retrieval for swipe related entity.
@@ -16,11 +18,14 @@ export class SwipesService {
    *
    * @param logger The pino logger
    * @param swipesRepository The repository of swipe entity
+   * @param subscriptionsRepository The repository of subscription entity
    */
   constructor(
     private readonly logger: PinoLogger,
     @InjectRepository(Swipe)
     private readonly swipesRepository: Repository<Swipe>,
+    @InjectRepository(Subscription)
+    private readonly subscriptionsRepository: Repository<Subscription>,
   ) {
     this.logger.setContext(SwipesService.name);
   }
@@ -35,18 +40,31 @@ export class SwipesService {
   async create(swipe: Swipe): Promise<Swipe> {
     this.logger.info(`Try to call ${SwipesService.prototype.create.name}`);
 
+    const now = new Date();
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    const swipeCount = await this.swipesRepository.count({
+    const unlimitedSubscription = await this.subscriptionsRepository.findOne({
       where: {
         user: { id: swipe.userId },
-        createdAt: Between(todayStart, todayEnd),
+        endDate: MoreThan(now),
+        type: SubscriptionType.UnlimitedSwipe,
       },
+      order: { endDate: 'DESC' },
     });
+
+    const swipeCount = unlimitedSubscription
+      ? 0
+      : await this.swipesRepository.count({
+          where: {
+            user: { id: swipe.userId },
+            createdAt: Between(todayStart, todayEnd),
+          },
+        });
 
     if (swipeCount >= SWIPE_COUNT) {
       throw new UnprocessableEntityException({

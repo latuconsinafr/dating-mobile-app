@@ -25,7 +25,7 @@ export const profileData = [
     updatedById: '790b0795-cffe-41df-9d3a-c48216c78a08',
   }),
   new Profile({
-    id: 'fbf69ccf-4780-4eea-951e-b75c65ddf75a',
+    id: 'dd194f84-6759-46af-86c9-b476b358d88e',
     name: 'User 3',
     age: 18,
     location: 'Bandung',

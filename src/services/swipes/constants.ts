@@ -58,4 +58,4 @@ export const SWIPE_ALREADY_EXISTS_DEFAULT_MESSAGE = (
 ) => `swipe with ${property} ${value} already exists`;
 
 // * Default other section
-export const SWIPE_COUNT = 10;
+export const SWIPE_COUNT = 2;
