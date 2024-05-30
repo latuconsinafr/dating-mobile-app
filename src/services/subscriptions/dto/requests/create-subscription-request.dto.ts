@@ -1,4 +1,10 @@
-import { IsEnum, IsISO8601, IsNotEmpty, IsUUID } from 'class-validator';
+import {
+  IsEnum,
+  IsISO8601,
+  IsNotEmpty,
+  IsUUID,
+  Validate,
+} from 'class-validator';
 import { SubscriptionType } from '../../enums/subscription-type.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { subscriptionData } from '../../../../database/data/subscription.data';
@@ -6,6 +12,7 @@ import { IsUserExist } from '../../../users/validators/is-user-exist.validator';
 import { USER_ID_DESCRIPTION } from '../../../users/constants';
 import { User } from '../../../users/entities/user.entity';
 import { Subscription } from '../../entities/subscription.entity';
+import { IsBeforeConstraint } from '../../../../common/utils/validators/is-before.validator.util';
 
 /**
  * Defines the DTO that carries data to create a subscription.
@@ -29,6 +36,7 @@ export class CreateSubscriptionRequest {
 
   @IsNotEmpty()
   @IsISO8601()
+  @Validate(IsBeforeConstraint, ['endDate'])
   @ApiProperty({
     description: 'The start date of the subscription',
     example: subscriptionData[0].startDate,
