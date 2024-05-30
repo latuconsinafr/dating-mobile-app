@@ -81,8 +81,8 @@ export const databaseConfig = registerAs(
       logging: appConfigOptions.debug
         ? 'all'
         : appConfigOptions.environment !== Environment.PRODUCTION
-          ? ['migration', 'query', 'warn', 'error']
-          : ['warn', 'error'],
+        ? ['migration', 'query', 'warn', 'error']
+        : ['warn', 'error'],
       entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
       migrations: [__dirname + '/../../database/migrations/*{.ts,.js}'],
       migrationsTableName: `${APP_NAME.replace(
